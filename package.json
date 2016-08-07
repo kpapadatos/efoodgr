@@ -1,0 +1,16 @@
+{
+  "name": "efoodgr",
+  "version": "0.0.1",
+  "description": "An unofficial cli tool for efood.gr",
+  "license": "MIT",
+  "author": {
+    "name": "Kosmas Papadatos",
+    "url": "https://github.com/raelgor"
+  },
+  "bin": {
+    "efood": "./bin/cli.js"
+  },
+  "dependencies": {
+    "yargs": "^4.8.1"
+  }
+}

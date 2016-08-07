@@ -1,0 +1,22 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "removeComments": false,
+    "moduleResolution": "node",
+    "experimentalDecorators": true
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "filesGlob": [
+    "./typings/**/*.ts",
+    "./src/**/*.ts",
+    "./gulpfile.ts"
+  ],
+  "atom": {
+    "rewriteTsconfig": true
+  }
+}
