@@ -8,6 +8,10 @@
     "name": "Kosmas Papadatos",
     "url": "https://github.com/raelgor"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/raelgor/efoodgr.git"
+  },
   "bin": {
     "efood": "./bin/efood.js"
   },
