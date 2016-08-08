@@ -31,7 +31,7 @@ interface EFoodEnvironment {
 function RequiresCart(target: any, propertyName: string, descriptor: TypedPropertyDescriptor<Function>) {
     let method = descriptor.value;
     descriptor.value = function() {
-        if (!this.cache.env.cart || (this.cache.env.cart && !this.cache.env.cart.length))
+        if (!this.cache.env.cart || (this.cache.env.cart && !this.cache.env.cart.items || !this.cache.env.cart.items.length))
             return this.log(`Your cart is empty!`);
         method.apply(this, arguments);
     }
@@ -148,135 +148,149 @@ export default class EFoodSession {
     @RequiresAuth
     async makeOrder() {
 
-      this.log('Placing order...');
+        this.log('Placing order...');
 
-      let items = this.cache.env.cart.items;
+        let items = this.cache.env.cart.items;
 
-      requestOptions.path = '/api/cart/add_item';
-      requestOptions.method = 'post';
+        requestOptions.path = '/api/cart/add_item';
+        requestOptions.method = 'post';
 
-      for(let item of items)
-         await this.request(requestOptions, qs.stringify(item));
+        for (let item of items)
+            await this.request(requestOptions, qs.stringify(item));
 
-      this.log('Cart updated. Sending final order request...');
+        this.log('Cart updated. Sending final order request...');
 
-      requestOptions.path = '/api/orders/send';
+        requestOptions.path = '/api/orders/send';
 
-      let response: any = await this.request(requestOptions, qs.stringify({
-          orderid: 0,
-          restaurantid: this.cache.env.cart.shop_id,
-          addressid: this.cache.env.address,
-          userid: this.cache.user.id,
-          deliverytype: 0,
-          actions: 0,
-         //  amount: getResponse.cart.total_sum,
-          cellphone: this.cache.user.cellphone,
-          doorbellname: `${this.cache.user.firstName} ${this.cache.user.lastName}`,
-         //  floor: config.floor,
-          phone: this.cache.user.cellphone,
-          notes: '',
-          coupon_code: '',
-          paymenttype: 'cash'
-      }));
+        let response: any = await this.request(requestOptions, qs.stringify({
+            orderid: 0,
+            restaurantid: this.cache.env.cart.shop_id,
+            addressid: this.cache.env.address,
+            userid: this.cache.user.id,
+            deliverytype: 0,
+            actions: 0,
+            //  amount: getResponse.cart.total_sum,
+            cellphone: this.cache.user.cellphone,
+            doorbellname: `${this.cache.user.firstName} ${this.cache.user.lastName}`,
+            //  floor: config.floor,
+            phone: this.cache.user.cellphone,
+            notes: '',
+            coupon_code: '',
+            paymenttype: 'cash'
+        }));
 
-      if(!response.success)
-         return this.log(`An error occured while placing the order: [red]${JSON.stringify(response)}[/red]`);
+        if (!response.success)
+            return this.log(`An error occured while placing the order: [red]${JSON.stringify(response)}[/red]`);
 
-      this.log(`Order placed. Awaiting approval...`);
+        this.log(`Order placed. Awaiting approval...`);
 
-      let statusInfo = {
-         order_id: response.order.id,
-         simple: 1,
-         t: new Date().getTime()
-      };
-
-      requestOptions.path = '/api/orders/status?' + qs.stringify(statusInfo);
-      requestOptions.method = 'get';
-
-      let isUploaded;
-
-      while(!isUploaded) {
-         let response = await new Promise<any>(r =>
-            setTimeout(() => this.request(requestOptions).then(r), 3e3)
-         );
-
-         console.log(response);
-         console.log(response.isUploaded);
-         console.log(requestOptions.path);
-
-         !isUploaded && this.log('Not approved yet. Checking again...');
-         isUploaded = response.isUploaded == 1;
-      }
+        let statusInfo = {
+            order_id: response.order.id,
+            simple: 1,
+            t: new Date().getTime()
+        };
 
 
-      this.log('[green]Order complete![/green]');
+        let isUploaded;
+
+        while (!isUploaded) {
+
+            statusInfo.t = new Date().getTime();
+
+            let requestOptions = {
+              path: '/api/orders/status?' + qs.stringify(statusInfo),
+              method: 'get',
+              hostname: 'www.e-food.gr',
+              port: 443,
+              headers: {
+                  'x-efood-session-id': this.cache.user.sid
+              }
+            };
+
+            console.log(requestOptions);
+
+            let response: any = await this.request(requestOptions);
+
+            await new Promise(r => setTimeout(r, 3e3));
+
+            console.log(response);
+            console.log(response.isUploaded);
+            console.log(requestOptions.path);
+
+            !isUploaded && this.log('Not approved yet. Checking again...');
+            isUploaded = response.isUploaded >= 1;
+
+        }
+
+
+        this.log('[green]Order complete![/green]');
 
     }
 
     @RequiresAuth
     async dropCart() {
 
-      this.cache.env.cart = {};
-      await this.updateCache();
+        this.cache.env.cart = {};
+        await this.updateCache();
 
-      this.log('Cart emptied.');
+        this.log('Cart emptied.');
 
     }
 
     @RequiresAuth
     async dropAddress(addressId) {
 
-      this.log(`Removing address [cyan]${addressId}[/cyan] from your account...`);
+        this.log(`Removing address [cyan]${addressId}[/cyan] from your account...`);
 
-      let requestOptions = {
-        hostname: 'api.e-food.gr',
-        path: `/api/v1/user/address/${addressId}/delete?_=${new Date().getTime()}`,
-        method: 'get',
-        headers: {
-          'x-efood-session-id': this.cache.user.sid
-        }
-      };
+        let requestOptions = {
+            hostname: 'api.e-food.gr',
+            path: `/api/v1/user/address/${addressId}/delete?_=${new Date().getTime()}`,
+            method: 'get',
+            headers: {
+                'x-efood-session-id': this.cache.user.sid
+            }
+        };
 
-      let response: any = await this.request(requestOptions);
+        let response: any = await this.request(requestOptions);
 
-      if(response.error_code != 'success')
-        return this.log(`[red]Error removing address:[/red] ${response.message}`);
+        if (response.error_code != 'success')
+            return this.log(`[red]Error removing address:[/red] ${response.message}`);
 
-      this.log(`[green]Success![/green]`);
+        this.log(`[green]Success![/green]`);
 
     }
 
     @RequiresAuth
     async addAddress(addressOptions) {
 
-      this.log(`Adding address to your account...`);
+        this.log(`Adding address to your account...`);
 
-      let data = {
-        id: '',
-        latitude: addressOptions.lat,
-        longitude: addressOptions.lon,
-        street: addressOptions.street,
-        street_number: addressOptions.sn,
-        zip: addressOptions.zip,
-        floor: addressOptions.floor,
-        doorbell_name: addressOptions.name
-      };
+        let data = {
+            id: '',
+            latitude: addressOptions.lat,
+            longitude: addressOptions.lon,
+            street: addressOptions.street,
+            street_number: addressOptions.sn,
+            zip: addressOptions.zip,
+            floor: addressOptions.floor,
+            doorbell_name: addressOptions.name
+        };
 
-      let requestOptions = {
-        hostname: 'api.e-food.gr',
-        path: '/api/v1/user/address',
-        method: 'post',
-        headers: {
-          'content-type': 'application/json',
-          'x-efood-session-id': this.cache.user.sid
-        }
-      };
+        let requestOptions = {
+            hostname: 'api.e-food.gr',
+            path: '/api/v1/user/address',
+            method: 'post',
+            headers: {
+                'content-type': 'application/json',
+                'x-efood-session-id': this.cache.user.sid
+            }
+        };
 
-      let response: any = await this.request(requestOptions, JSON.stringify(data));
-      if(response.error_code != 'success')
-        return this.log(`[red]There was an error adding this address: [/red] ${response.message}`)
+        let response: any = await this.request(requestOptions, JSON.stringify(data));
+        if (response.error_code != 'success')
+            return this.log(`[red]There was an error adding this address: [/red] ${response.message}`)
 
-      this.log('[green]Success![/green]');
+        this.log('[green]Success![/green]');
 
     }
 

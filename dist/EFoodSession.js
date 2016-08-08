@@ -31,7 +31,7 @@ var requestOptions = {
 function RequiresCart(target, propertyName, descriptor) {
     let method = descriptor.value;
     descriptor.value = function () {
-        if (!this.cache.env.cart || (this.cache.env.cart && !this.cache.env.cart.length))
+        if (!this.cache.env.cart || (this.cache.env.cart && !this.cache.env.cart.items || !this.cache.env.cart.items.length))
             return this.log(`Your cart is empty!`);
         method.apply(this, arguments);
     };
