@@ -28,6 +28,14 @@ var requestOptions = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36'
     }
 };
+function RequiresCart(target, propertyName, descriptor) {
+    let method = descriptor.value;
+    descriptor.value = function () {
+        if (!this.cache.env.cart || (this.cache.env.cart && !this.cache.env.cart.length))
+            return this.log(`Your cart is empty!`);
+        method.apply(this, arguments);
+    };
+}
 function RequiresStore(target, propertyName, descriptor) {
     let method = descriptor.value;
     descriptor.value = function () {
@@ -102,8 +110,6 @@ class EFoodSession {
     }
     makeOrder() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this.cache.env.cart || this.cache.env.cart && !this.cache.env.cart.items.length)
-                return this.log('Your cart is empty!');
             this.log('Placing order...');
             let items = this.cache.env.cart.items;
             requestOptions.path = '/api/cart/add_item';
@@ -155,6 +161,36 @@ class EFoodSession {
             this.cache.env.cart = {};
             yield this.updateCache();
             this.log('Cart emptied.');
+        });
+    }
+    addAddress(addressOptions) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.log(`Adding address to your account...`);
+            let data = {
+                id: '',
+                latitude: addressOptions.lat,
+                longitude: addressOptions.lon,
+                street: addressOptions.street,
+                street_number: addressOptions.sn,
+                zip: addressOptions.zip,
+                floor: addressOptions.floor,
+                doorbell_name: addressOptions.name
+            };
+            let requestOptions = {
+                hostname: 'api.e-food.gr',
+                path: '/api/v1/user/address',
+                method: 'post',
+                headers: {
+                    'content-type': 'application/json',
+                    'x-efood-session-id': this.cache.user.sid
+                }
+            };
+            console.log(data);
+            let response = yield this.request(requestOptions, JSON.stringify(data));
+            console.log(response);
+            if (response.error_code != 'success')
+                return this.log(`[red]There was an error adding this address: [/red] ${response.message}`);
+            this.log('[green]Success![/green]');
         });
     }
     getCart(itemOptions) {
@@ -320,7 +356,7 @@ class EFoodSession {
         return __awaiter(this, void 0, void 0, function* () {
             options.headers['Cookie'] = this.cache.cookies.join('');
             return yield new Promise(resolve => {
-                if (data)
+                if (data && !options.headers['content-type'])
                     options.headers['Content-Length'] = data.length;
                 var request = https.request(options, (response) => {
                     let data = '';
@@ -354,12 +390,17 @@ __decorate([
 ], EFoodSession.prototype, "getItem", null);
 __decorate([
     RequiresAddress,
+    RequiresCart,
     RequiresAuth
 ], EFoodSession.prototype, "makeOrder", null);
 __decorate([
     RequiresAuth
 ], EFoodSession.prototype, "dropCart", null);
 __decorate([
+    RequiresAuth
+], EFoodSession.prototype, "addAddress", null);
+__decorate([
+    RequiresCart,
     RequiresAuth
 ], EFoodSession.prototype, "getCart", null);
 __decorate([

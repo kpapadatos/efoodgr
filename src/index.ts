@@ -30,6 +30,19 @@ program
    .action(cmd => session.setStore(cmd));
 
 program
+   .command('addaddress')
+   .alias('addaddr')
+   .description('Adds an address to your account.')
+   .option('--lat [lat]', 'Address latitude.')
+   .option('--lon [lon]', 'Address longitude.')
+   .option('--street [street]', 'Street name.')
+   .option('--sn [sn]', 'Street number.')
+   .option('--zip [zip]', 'Zip code.')
+   .option('-f, --floor [floor]', 'Floor to deliver to.')
+   .option('-n, --name [name]', 'Name on the doorbell.')
+   .action(cmd => session.addAddress(cmd));
+
+program
    .command('addcart')
    .alias('ac')
    .description('Adds cart entry.')

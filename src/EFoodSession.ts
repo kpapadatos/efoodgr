@@ -28,6 +28,15 @@ interface EFoodEnvironment {
     cart?: any;
 }
 
+function RequiresCart(target: any, propertyName: string, descriptor: TypedPropertyDescriptor<Function>) {
+    let method = descriptor.value;
+    descriptor.value = function() {
+        if (!this.cache.env.cart || (this.cache.env.cart && !this.cache.env.cart.length))
+            return this.log(`Your cart is empty!`);
+        method.apply(this, arguments);
+    }
+}
+
 function RequiresStore(target: any, propertyName: string, descriptor: TypedPropertyDescriptor<Function>) {
     let method = descriptor.value;
     descriptor.value = function() {
@@ -135,11 +144,9 @@ export default class EFoodSession {
     }
 
     @RequiresAddress
+    @RequiresCart
     @RequiresAuth
     async makeOrder() {
-
-      if(!this.cache.env.cart || this.cache.env.cart && !this.cache.env.cart.items.length)
-         return this.log('Your cart is empty!');
 
       this.log('Placing order...');
 
@@ -216,6 +223,41 @@ export default class EFoodSession {
 
     }
 
+    @RequiresAuth
+    async addAddress(addressOptions) {
+
+      this.log(`Adding address to your account...`);
+
+      let data = {
+        id: '',
+        latitude: addressOptions.lat,
+        longitude: addressOptions.lon,
+        street: addressOptions.street,
+        street_number: addressOptions.sn,
+        zip: addressOptions.zip,
+        floor: addressOptions.floor,
+        doorbell_name: addressOptions.name
+      };
+
+      let requestOptions = {
+        hostname: 'api.e-food.gr',
+        path: '/api/v1/user/address',
+        method: 'post',
+        headers: {
+          'content-type': 'application/json',
+          'x-efood-session-id': this.cache.user.sid
+        }
+      };
+
+      let response: any = await this.request(requestOptions, JSON.stringify(data));
+      if(response.error_code != 'success')
+        return this.log(`[red]There was an error adding this address: [/red] ${response.message}`)
+
+      this.log('[green]Success![/green]');
+
+    }
+
+    @RequiresCart
     @RequiresAuth
     async getCart(itemOptions) {
 
@@ -452,7 +494,7 @@ export default class EFoodSession {
     async request(options: any, data?: any) {
         options.headers['Cookie'] = this.cache.cookies.join('');
         return await new Promise(resolve => {
-            if (data)
+            if (data && !options.headers['content-type'])
                 options.headers['Content-Length'] = data.length;
             var request = https.request(options, (response) => {
                 let data = '';
