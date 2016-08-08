@@ -18,6 +18,10 @@ program
     .description('Gets the menu of the selected store.')
     .action(cmd => session.getMenu());
 program
+    .command('dropaddr [addressId]')
+    .description('Removes address from your account.')
+    .action(cmd => session.dropAddress(cmd));
+program
     .command('setstore [storeId]')
     .description('Sets the store.')
     .action(cmd => session.setStore(cmd));

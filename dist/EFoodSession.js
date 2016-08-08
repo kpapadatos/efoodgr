@@ -163,6 +163,23 @@ class EFoodSession {
             this.log('Cart emptied.');
         });
     }
+    dropAddress(addressId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.log(`Removing address [cyan]${addressId}[/cyan] from your account...`);
+            let requestOptions = {
+                hostname: 'api.e-food.gr',
+                path: `/api/v1/user/address/${addressId}/delete?_=${new Date().getTime()}`,
+                method: 'get',
+                headers: {
+                    'x-efood-session-id': this.cache.user.sid
+                }
+            };
+            let response = yield this.request(requestOptions);
+            if (response.error_code != 'success')
+                return this.log(`[red]Error removing address:[/red] ${response.message}`);
+            this.log(`[green]Success![/green]`);
+        });
+    }
     addAddress(addressOptions) {
         return __awaiter(this, void 0, void 0, function* () {
             this.log(`Adding address to your account...`);
@@ -185,9 +202,7 @@ class EFoodSession {
                     'x-efood-session-id': this.cache.user.sid
                 }
             };
-            console.log(data);
             let response = yield this.request(requestOptions, JSON.stringify(data));
-            console.log(response);
             if (response.error_code != 'success')
                 return this.log(`[red]There was an error adding this address: [/red] ${response.message}`);
             this.log('[green]Success![/green]');
@@ -396,6 +411,9 @@ __decorate([
 __decorate([
     RequiresAuth
 ], EFoodSession.prototype, "dropCart", null);
+__decorate([
+    RequiresAuth
+], EFoodSession.prototype, "dropAddress", null);
 __decorate([
     RequiresAuth
 ], EFoodSession.prototype, "addAddress", null);

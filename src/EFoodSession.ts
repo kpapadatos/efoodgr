@@ -224,6 +224,29 @@ export default class EFoodSession {
     }
 
     @RequiresAuth
+    async dropAddress(addressId) {
+
+      this.log(`Removing address [cyan]${addressId}[/cyan] from your account...`);
+
+      let requestOptions = {
+        hostname: 'api.e-food.gr',
+        path: `/api/v1/user/address/${addressId}/delete?_=${new Date().getTime()}`,
+        method: 'get',
+        headers: {
+          'x-efood-session-id': this.cache.user.sid
+        }
+      };
+
+      let response: any = await this.request(requestOptions);
+
+      if(response.error_code != 'success')
+        return this.log(`[red]Error removing address:[/red] ${response.message}`);
+
+      this.log(`[green]Success![/green]`);
+
+    }
+
+    @RequiresAuth
     async addAddress(addressOptions) {
 
       this.log(`Adding address to your account...`);
