@@ -6,7 +6,8 @@
     "noImplicitAny": false,
     "removeComments": false,
     "moduleResolution": "node",
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "outDir": "./dist"
   },
   "exclude": [
     "node_modules"
@@ -18,5 +19,19 @@
   ],
   "atom": {
     "rewriteTsconfig": true
-  }
+  },
+  "files": [
+    "./typings/chalk/chalk.d.ts",
+    "./typings/commander/commander.d.ts",
+    "./typings/gulp-jsvalidate/gulp-jsvalidate.d.ts",
+    "./typings/gulp-load-plugins/gulp-load-plugins.d.ts",
+    "./typings/gulp-typescript/gulp-typescript.d.ts",
+    "./typings/gulp/gulp.d.ts",
+    "./typings/node/node.d.ts",
+    "./typings/orchestrator/orchestrator.d.ts",
+    "./typings/q/Q.d.ts",
+    "./src/EFoodSession.ts",
+    "./src/index.ts",
+    "./gulpfile.ts"
+  ]
 }

@@ -3,3 +3,5 @@ bower_components/*
 App_Data/*
 Properties/*
 cache.json
+.git/*
+.gitignore
