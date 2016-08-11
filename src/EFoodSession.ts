@@ -207,15 +207,9 @@ export default class EFoodSession {
               }
             };
 
-            console.log(requestOptions);
-
             let response: any = await this.request(requestOptions);
 
             await new Promise(r => setTimeout(r, 3e3));
-
-            console.log(response);
-            console.log(response.isUploaded);
-            console.log(requestOptions.path);
 
             !isUploaded && this.log('Not approved yet. Checking again...');
             isUploaded = response.isUploaded >= 1;

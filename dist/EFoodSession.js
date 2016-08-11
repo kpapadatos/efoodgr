@@ -142,16 +142,22 @@ class EFoodSession {
                 simple: 1,
                 t: new Date().getTime()
             };
-            requestOptions.path = '/api/orders/status?' + qs.stringify(statusInfo);
-            requestOptions.method = 'get';
             let isUploaded;
             while (!isUploaded) {
-                let response = yield new Promise(r => setTimeout(() => this.request(requestOptions).then(r), 3e3));
-                console.log(response);
-                console.log(response.isUploaded);
-                console.log(requestOptions.path);
+                statusInfo.t = new Date().getTime();
+                let requestOptions = {
+                    path: '/api/orders/status?' + qs.stringify(statusInfo),
+                    method: 'get',
+                    hostname: 'www.e-food.gr',
+                    port: 443,
+                    headers: {
+                        'x-efood-session-id': this.cache.user.sid
+                    }
+                };
+                let response = yield this.request(requestOptions);
+                yield new Promise(r => setTimeout(r, 3e3));
                 !isUploaded && this.log('Not approved yet. Checking again...');
-                isUploaded = response.isUploaded == 1;
+                isUploaded = response.isUploaded >= 1;
             }
             this.log('[green]Order complete![/green]');
         });
