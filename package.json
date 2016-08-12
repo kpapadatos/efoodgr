@@ -1,6 +1,6 @@
 {
   "name": "efoodgr",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "An unofficial cli tool for efood.gr",
   "license": "MIT",
   "main": "./dist/EFoodSession.js",
