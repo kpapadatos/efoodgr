@@ -13,7 +13,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const oc = require('./overwriteCookies');
+const overwriteCookies_1 = require('./overwriteCookies');
+const EventEmitter2_1 = require('EventEmitter2');
 const chalk = require('chalk');
 const qs = require('querystring');
 const fs = require('fs');
@@ -32,39 +33,40 @@ function RequiresCart(target, propertyName, descriptor) {
     let method = descriptor.value;
     descriptor.value = function () {
         if (!this.cache.env.cart || (this.cache.env.cart && !this.cache.env.cart.items || !this.cache.env.cart.items.length))
-            return this.log(`Your cart is empty!`);
-        method.apply(this, arguments);
+            throw new Error(`Your cart is empty!`);
+        return method.apply(this, arguments);
     };
 }
 function RequiresStore(target, propertyName, descriptor) {
     let method = descriptor.value;
     descriptor.value = function () {
         if (!this.cache.env.store)
-            return this.log(`You haven't selected a store!`);
-        method.apply(this, arguments);
+            throw new Error(`You haven't selected a store!`);
+        return method.apply(this, arguments);
     };
 }
 function RequiresAddress(target, propertyName, descriptor) {
     let method = descriptor.value;
     descriptor.value = function () {
         if (!this.cache.env.address)
-            return this.log(`You haven't set an address!`);
-        method.apply(this, arguments);
+            throw new Error(`You haven't set an address!`);
+        return method.apply(this, arguments);
     };
 }
 function RequiresAuth(target, propertyName, descriptor) {
     let method = descriptor.value;
     descriptor.value = function () {
         if (!this.cache.user.id)
-            return this.log(`You are not logged in!`);
-        method.apply(this, arguments);
+            throw new Error(`You are not logged in!`);
+        return method.apply(this, arguments);
     };
 }
-class EFoodSession {
+class EFoodSession extends EventEmitter2_1.EventEmitter2 {
     constructor(options = {
             verbose: true,
             persistentCache: false
         }) {
+        super();
         this.options = options;
         if (options.persistentCache) {
             try {
@@ -77,7 +79,6 @@ class EFoodSession {
     }
     getItem(itemCode) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log(`Getting item [cyan]${itemCode}[/cyan] info...`);
             requestOptions.path = `/popup/menu_item?item_code=${itemCode}&shop_id=${this.cache.env.store}`;
             requestOptions.method = 'get';
             let response = yield this.request(requestOptions);
@@ -101,22 +102,24 @@ class EFoodSession {
                 }));
                 response = next.join(delimiter);
             }
-            for (let option of options) {
-                this.log(`[cyan][${option.id}] ${option.title}[/cyan]`);
-                for (let choice of option.choices)
-                    this.log(`    [cyan][${choice.id}] [${choice.price.trim()}€] ${choice.title}[/cyan]`);
-            }
+            return options;
         });
     }
-    makeOrder() {
+    makeOrder(callbacks = {
+            onCartUpdated: () => { },
+            onOrderRequestError: () => { },
+            onOrderPlaced: () => { },
+            onNotApprovedYet: () => { }
+        }) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log('Placing order...');
             let items = this.cache.env.cart.items;
+            let userAddresses = yield this.getUserAddresses();
+            let address = userAddresses.filter(a => a.id === this.cache.env.address)[0];
             requestOptions.path = '/api/cart/add_item';
             requestOptions.method = 'post';
             for (let item of items)
                 yield this.request(requestOptions, qs.stringify(item));
-            this.log('Cart updated. Sending final order request...');
+            callbacks.onCartUpdated();
             requestOptions.path = '/api/orders/send';
             let response = yield this.request(requestOptions, qs.stringify({
                 orderid: 0,
@@ -125,18 +128,18 @@ class EFoodSession {
                 userid: this.cache.user.id,
                 deliverytype: 0,
                 actions: 0,
-                //  amount: getResponse.cart.total_sum,
                 cellphone: this.cache.user.cellphone,
-                doorbellname: `${this.cache.user.firstName} ${this.cache.user.lastName}`,
-                //  floor: config.floor,
+                doorbellname: address.doorbellname,
+                floor: address.floor,
                 phone: this.cache.user.cellphone,
                 notes: '',
                 coupon_code: '',
                 paymenttype: 'cash'
             }));
+            yield this.updateCache();
             if (!response.success)
-                return this.log(`An error occured while placing the order: [red]${JSON.stringify(response)}[/red]`);
-            this.log(`Order placed. Awaiting approval...`);
+                return callbacks.onOrderRequestError(response);
+            callbacks.onOrderPlaced();
             let statusInfo = {
                 order_id: response.order.id,
                 simple: 1,
@@ -156,22 +159,20 @@ class EFoodSession {
                 };
                 let response = yield this.request(requestOptions);
                 yield new Promise(r => setTimeout(r, 3e3));
-                !isUploaded && this.log('Not approved yet. Checking again...');
+                !isUploaded && callbacks.onNotApprovedYet();
                 isUploaded = response.isUploaded >= 1;
             }
-            this.log('[green]Order complete![/green]');
+            yield this.updateCache();
         });
     }
     dropCart() {
         return __awaiter(this, void 0, void 0, function* () {
             this.cache.env.cart = {};
             yield this.updateCache();
-            this.log('Cart emptied.');
         });
     }
     dropAddress(addressId) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log(`Removing address [cyan]${addressId}[/cyan] from your account...`);
             let requestOptions = {
                 hostname: 'api.e-food.gr',
                 path: `/api/v1/user/address/${addressId}/delete?_=${new Date().getTime()}`,
@@ -180,15 +181,11 @@ class EFoodSession {
                     'x-efood-session-id': this.cache.user.sid
                 }
             };
-            let response = yield this.request(requestOptions);
-            if (response.error_code != 'success')
-                return this.log(`[red]Error removing address:[/red] ${response.message}`);
-            this.log(`[green]Success![/green]`);
+            return yield this.request(requestOptions);
         });
     }
     addAddress(addressOptions) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log(`Adding address to your account...`);
             let data = {
                 id: '',
                 latitude: addressOptions.lat,
@@ -208,23 +205,16 @@ class EFoodSession {
                     'x-efood-session-id': this.cache.user.sid
                 }
             };
-            let response = yield this.request(requestOptions, JSON.stringify(data));
-            if (response.error_code != 'success')
-                return this.log(`[red]There was an error adding this address: [/red] ${response.message}`);
-            this.log('[green]Success![/green]');
+            return yield this.request(requestOptions, JSON.stringify(data));
         });
     }
     getCart(itemOptions) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.cache.env.cart)
-                this.cache.env.cart = { items: [] };
-            this.log(`Shop Id: [cyan]${this.cache.env.cart.shop_id}[/cyan]`);
-            this.cache.env.cart.items.forEach(i => this.log(`[cyan]${JSON.stringify(i)}[/cyan]`));
-        });
+        if (!this.cache.env.cart)
+            this.cache.env.cart = { items: [] };
+        return this.cache.env.cart;
     }
     addToCart(itemOptions) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log(`Adding item to cart...`);
             let item = {
                 shop_id: this.cache.env.store,
                 item_code: itemOptions.item,
@@ -239,12 +229,10 @@ class EFoodSession {
             itemOptions.config &&
                 itemOptions.config.split('::').forEach(option => item[`options[${option.split(':')[0]}][]`] = option.split(':')[1].split(','));
             yield this.updateCache();
-            this.log(`[green]Done.[/green]`);
         });
     }
     getMenu() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.log(`Getting menu for [cyan]${this.cache.env.store}[/cyan] ...`);
+        return __awaiter(this, void 0, Promise, function* () {
             requestOptions.path = `/menu?shop_id=${this.cache.env.store}`;
             requestOptions.method = 'get';
             let response = yield this.request(requestOptions);
@@ -260,8 +248,7 @@ class EFoodSession {
                     price: response.split(/itemprop="price"[^>]*>/)[1].split('<')[0]
                 });
             }
-            for (let item of items)
-                this.log(`[cyan][IT_${item.id}] [${item.price}€] ${item.name}[/cyan]`);
+            return items;
         });
     }
     log(text) {
@@ -274,15 +261,12 @@ class EFoodSession {
     }
     setStore(storeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log(`Setting store to [cyan]${storeId}[/cyan] ...`);
             this.cache.env.store = storeId;
             yield this.updateCache();
-            this.log(`[green]Success![/green]`);
         });
     }
-    listStores() {
+    getStores() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log(`Getting stores for address [cyan]${this.cache.env.address}[/cyan] ...`);
             requestOptions.path = `/shops?user_address=${this.cache.env.address}&delivery_type=0`;
             requestOptions.method = 'get';
             let response = yield this.request(requestOptions);
@@ -300,8 +284,7 @@ class EFoodSession {
                     eta: response.split('data-shop-delivery-eta="')[1].split('"')[0]
                 });
             }
-            for (let shop of shops)
-                this.log(`[cyan][${shop.id}] [${shop.rating}*] [${shop.min}€] [${shop.eta}min] ${shop.name}[/cyan]`);
+            return shops;
         });
     }
     updateCache() {
@@ -312,24 +295,19 @@ class EFoodSession {
     }
     setAddress(addressId) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log(`Setting user address to [cyan]${addressId}[/cyan] ...`);
             this.cache.env.address = addressId;
             yield this.updateCache();
-            this.log(`[green]Success![/green]`);
         });
     }
     logout() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log(`Deleting all local data...`);
             this.cache.user = {};
             this.cache.cookies = [];
             yield new Promise(r => fs.unlink(cachePath, r));
-            this.log('[green]Success![/green]');
         });
     }
     getUserAddresses() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log('Getting addresses...');
             requestOptions.path = '/account/addresses';
             requestOptions.method = 'get';
             let response = yield this.request(requestOptions);
@@ -343,40 +321,38 @@ class EFoodSession {
                     continue;
                 addresses.push({
                     id: response.split('"')[0],
-                    title: response.split('title">')[1].split('<')[0]
+                    title: response.split('title">')[1].split('<')[0],
+                    doorbellname: response.split('address-info-left">Κουδούνι')[1].split('address-info-right">')[1].split('<')[0].trim(),
+                    floor: response.split('address-info-left">Όροφος')[1].split('address-info-right">')[1].split('<')[0].trim()
                 });
             }
-            for (let address of addresses)
-                this.log(`[cyan][${address.id}] ${address.title}[/cyan]`);
+            return addresses;
         });
     }
     getUser() {
-        let u = this.cache.user;
-        this.log(`Logged in as [cyan][${u.id}] ${u.firstName} ${u.lastName} (${u.email})[/cyan].`);
+        return this.cache.user;
     }
     login(username, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log(`Logging in as [cyan]${username}[/cyan] ...`);
             let data = qs.stringify({
                 email: username,
                 pass: password
             });
             requestOptions.path = '/api/users/login';
-            requestOptions.method = 'POST';
+            requestOptions.method = 'post';
             let response = yield this.request(requestOptions, data);
             if (response.success) {
                 this.cache.user = response.user;
                 yield this.updateCache();
-                this.log(`[green]Success![/green]`);
             }
-            else
-                this.log(`[red]Login failed:[/red] ${response.error.err_msg}`);
+            return response;
         });
     }
     request(options, data) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, Promise, function* () {
             options.headers['Cookie'] = this.cache.cookies.join('');
             return yield new Promise(resolve => {
+                delete options.headers['Content-Length'];
                 if (data && !options.headers['content-type'])
                     options.headers['Content-Length'] = data.length;
                 var request = https.request(options, (response) => {
@@ -386,7 +362,7 @@ class EFoodSession {
                         return this.request(options, data).then(resolve);
                     }
                     // Update cookies
-                    oc(response, this.cache.cookies);
+                    overwriteCookies_1.default(response, this.cache.cookies);
                     response.on('data', chunk => data += chunk);
                     response.on('error', resolve);
                     response.on('end', () => {
@@ -442,7 +418,7 @@ __decorate([
 __decorate([
     RequiresAddress,
     RequiresAuth
-], EFoodSession.prototype, "listStores", null);
+], EFoodSession.prototype, "getStores", null);
 __decorate([
     RequiresAuth
 ], EFoodSession.prototype, "setAddress", null);

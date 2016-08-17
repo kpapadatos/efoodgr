@@ -175,7 +175,7 @@ declare namespace commander {
          * @return {Command} for chaining
          * @api public
          */
-        parse(argv:string[]):ICommand;
+        parse(argv:string[]):any;
 
         /**
          * Execute a sub-command executable.

@@ -1,5 +1,4 @@
-'use strict';
-module.exports = (response, cookieArray) => {
+export default function(response, cookieArray) {
 
 	let cookies = response.headers['set-cookie'];
 	let dict = {};
