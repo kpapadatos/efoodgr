@@ -18,6 +18,7 @@ Object.defineProperty(Object.prototype, 'getQuestion', {
 });
 
 import * as fs from 'fs';
+import * as path from 'path';
 import * as program from 'commander';
 import EFoodSession from './EFoodSession';
 import * as inquirer from 'inquirer';
@@ -29,7 +30,7 @@ program.usage('<command> [options]');
 
 program.version(_package.version);
 
-for (let file of fs.readdirSync('./dist/commands'))
+for (let file of fs.readdirSync(path.resolve(__dirname, 'commands')))
     require(`./commands/${file}`).default(program, session);
 
 program.parse(process.argv);

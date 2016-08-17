@@ -24,6 +24,7 @@ Object.defineProperty(Object.prototype, 'getQuestion', {
     }
 });
 const fs = require('fs');
+const path = require('path');
 const program = require('commander');
 const EFoodSession_1 = require('./EFoodSession');
 const inquirer = require('inquirer');
@@ -31,7 +32,7 @@ const chalk = require('chalk');
 var session = new EFoodSession_1.default({ verbose: true, persistentCache: true });
 program.usage('<command> [options]');
 program.version(_package.version);
-for (let file of fs.readdirSync('./dist/commands'))
+for (let file of fs.readdirSync(path.resolve(__dirname, 'commands')))
     require(`./commands/${file}`).default(program, session);
 program.parse(process.argv);
 var consoleCommandIndex = {};

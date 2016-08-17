@@ -1,4 +1,4 @@
-## efoodgr
+# efoodgr
 An unofficial CLI tool to manage your efood.gr account and place orders.
 
 #### Installation
