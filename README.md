@@ -1,10 +1,51 @@
 # efoodgr
-An unofficial CLI tool to manage your efood.gr account and place orders.
+An unofficial tool to manage your efood.gr account and place orders.
 
-#### Installation
+## Contents
+* [Installation](#installation)
+* [EFoodSession class](#efoodsession-class)
+* [CLI usage](#cli-usage)
+* [Console usage](#console-usage)
+* [Contribute](#contribute)
+* [License](#license)
+
+### Installation
 `npm i -g efoodgr`
 
-#### Usage
+### EFoodSession class
+Usage:
+```ts
+import EFoodSession from 'efoodgr';
+
+// Persistent cache stores session cookies in process.env.USERPROFILE
+let session = new EFoodSession({ persistentCache: true });
+
+(async function main() {
+
+  await session.login('your.email@efood.gr', 'your-password');
+  
+  let addresses = await session.getUserAddresses();
+  
+  await session.setAddress(addresses[0].id);
+  
+  let nearbyStores = await session.getStores();
+  
+  await session.setStore(nearbyStores[0].id);
+  
+  let menu = await session.getMenu();
+  
+  let menuItem = menu[0];
+  
+  // TODO write the rest of this process...
+  // ... add items with session.addCart(itemOptions)
+  
+  await session.makeOrder();
+
+})();
+
+```
+
+### CLI Usage
   `efood <command> [options]`
 
   Get help for each command with
@@ -32,3 +73,28 @@ An unofficial CLI tool to manage your efood.gr account and place orders.
 
     -h, --help     output usage information
     -V, --version  output the version number
+
+### Console usage
+Just type `efood` to enter the console and then `help` to see available commands. Not all commands exist/behave the same in the console environment.
+
+### Contribute
+Feel free to propose changes and/or add features. Future plans include:
+
+- Payment method support (PayPal/Credit card)
+- Order presets
+- Use API instead of scrapping
+- Tests
+
+#### Guidelines
+This is a nodejs/typescipt/gulp project and should remain so. Before you go into trouble writing in different technologies, email me first at kosmas.papadatos@gmail.com
+
+### License
+(The MIT License)
+
+Copyright (c) 2015 Kosmas Papadatos <kosmas.papadatos@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
