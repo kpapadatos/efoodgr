@@ -1,5 +1,5 @@
 import oc from './overwriteCookies';
-import { EventEmitter2 } from 'EventEmitter2';
+import { EventEmitter2 } from 'eventemitter2';
 import * as chalk from 'chalk';
 import * as qs from 'querystring';
 import * as fs from 'fs';
@@ -85,7 +85,7 @@ export default class EFoodSession extends EventEmitter2 {
 
         if (options.persistentCache) {
             try {
-                this.cache = require(cachePath);
+                this.cache = JSON.parse(fs.readFileSync(cachePath).toString('utf8'));
             } catch (err) { }
         }
 

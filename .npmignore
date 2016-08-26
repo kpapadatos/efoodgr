@@ -5,3 +5,4 @@ Properties/*
 cache.json
 .git/*
 .gitignore
+tmp/*

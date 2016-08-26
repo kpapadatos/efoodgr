@@ -14,7 +14,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const overwriteCookies_1 = require('./overwriteCookies');
-const EventEmitter2_1 = require('EventEmitter2');
+const eventemitter2_1 = require('eventemitter2');
 const chalk = require('chalk');
 const qs = require('querystring');
 const fs = require('fs');
@@ -61,7 +61,7 @@ function RequiresAuth(target, propertyName, descriptor) {
         return method.apply(this, arguments);
     };
 }
-class EFoodSession extends EventEmitter2_1.EventEmitter2 {
+class EFoodSession extends eventemitter2_1.EventEmitter2 {
     constructor(options = {
             verbose: true,
             persistentCache: false
@@ -70,7 +70,7 @@ class EFoodSession extends EventEmitter2_1.EventEmitter2 {
         this.options = options;
         if (options.persistentCache) {
             try {
-                this.cache = require(cachePath);
+                this.cache = JSON.parse(fs.readFileSync(cachePath).toString('utf8'));
             }
             catch (err) { }
         }
