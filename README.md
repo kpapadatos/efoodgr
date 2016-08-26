@@ -1,3 +1,5 @@
+<img src="https://avatars2.githubusercontent.com/u/15088210?v=3&s=96" alt="Google Cloud Platform logo" title="Google Cloud Platform" align="right" height="96" width="96"/>
+
 # efoodgr
 An unofficial tool to manage your efood.gr account and place orders.
 
@@ -6,6 +8,7 @@ An unofficial tool to manage your efood.gr account and place orders.
 * [EFoodSession class](#efoodsession-class)
 * [CLI usage](#cli-usage)
 * [Console usage](#console-usage)
+* [Build](#build)
 * [Contribute](#contribute)
 * [License](#license)
 
@@ -76,6 +79,20 @@ let session = new EFoodSession({ persistentCache: true });
 
 ### Console usage
 Just type `efood` to enter the console and then `help` to see available commands. Not all commands exist/behave the same in the console environment.
+
+### Build
+If you want to build this package into a standalone binary for your OS, you can use [nexe](https://github.com/jaredallard/nexe)
+```sh
+npm i -g nexe
+git clone https://github.com/raelgor/efoodgr
+cd efoodgr
+npm i
+nexe -i bin/efood.js -o efood.exe
+```
+
+#### Notes
+- It may take some time as it downloads the latest NodeJS source and builds it.
+- If you get some errors about 'try-thread-sleep' and 'thread-sleep' modules missing, you may need to create their folders in node_modules with a dummy `package.json` to fool browserify that they exist.
 
 ### Contribute
 Feel free to propose changes and/or add features. Future plans include:
