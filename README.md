@@ -40,7 +40,7 @@ let session = new EFoodSession({ persistentCache: true });
   let menuItem = menu[0];
   
   // TODO write the rest of this process...
-  // ... add items with session.addCart(itemOptions)
+  // ... add items with session.addToCart(itemOptions)
   
   await session.makeOrder();
 
@@ -92,7 +92,7 @@ nexe -i bin/efood.js -o efood.exe
 
 #### Notes
 - It may take some time as it downloads the latest NodeJS source and builds it.
-- If you get some errors about 'try-thread-sleep' and 'thread-sleep' modules missing, you may need to create their folders in node_modules with a dummy `package.json` to fool browserify that they exist.
+- If you get errors about `try-thread-sleep` and `thread-sleep` modules missing, you may need to create their folders in `node_modules` with a dummy `package.json` to fool `browserify` that they exist.
 
 ### Contribute
 Feel free to propose changes and/or add features. Future plans include:
