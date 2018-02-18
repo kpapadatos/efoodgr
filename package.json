@@ -1,37 +1,30 @@
 {
   "name": "efoodgr",
-  "version": "0.0.9",
+  "version": "1.0.0",
   "description": "An unofficial tool to manage your efood.gr account.",
   "license": "MIT",
-  "main": "./dist/EFoodSession.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "author": {
     "name": "Kosmas Papadatos",
-    "url": "https://github.com/raelgor"
+    "url": "https://github.com/kpapadatos"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/raelgor/efoodgr.git"
+    "url": "https://github.com/kpapadatos/efoodgr.git"
   },
   "bin": {
     "efood": "./bin/efood.js"
   },
-  "dependencies": {
-    "chalk": "^1.1.3",
-    "commander": "^2.9.0",
-    "eventemitter2": "^2.1.0",
-    "inquirer": "^1.1.2",
-    "string-argv": "0.0.2"
+  "scripts": {
+    "build": "tsc -w --declaration"
   },
-  "devDependencies": {
-    "del": "^2.2.2",
-    "gulp": "^3.9.1",
-    "gulp-if": "^2.0.1",
-    "gulp-load-plugins": "^1.2.4",
-    "gulp-typescript": "^2.13.6",
-    "gulpclass": "^0.1.1",
-    "ts-node": "^1.2.2",
-    "typescript-node": "^0.1.3",
-    "typescript-register": "^1.1.0",
-    "typescript-require": "^0.2.9-1"
+  "dependencies": {
+    "@types/node": "^7.0.51",
+    "chalk": "^1.1.3",
+    "commander": "^2.14.1",
+    "inquirer": "^1.1.2",
+    "request": "^2.83.0",
+    "request-promise-native": "^1.0.5"
   }
 }

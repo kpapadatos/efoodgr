@@ -1,9 +1,10 @@
-import EFoodSession from '../EFoodSession';
+import * as EFood from '../index';
 import * as inquirer from 'inquirer';
+import * as c from 'chalk';
 
-var session: EFoodSession;
+var session: EFood.Session;
 
-export default function(program, s: EFoodSession) {
+export default function (program, s: EFood.Session) {
 
     session = s;
 
@@ -14,7 +15,7 @@ export default function(program, s: EFoodSession) {
         .option('-u, --username <user>', 'user identification')
         .option('-p, --password <password>', 'user password')
         .action(handler)
-        .consoleHandler = async function() {
+        .consoleHandler = async function () {
 
             let { username, password } = await inquirer.prompt([
                 {
@@ -36,13 +37,13 @@ export default function(program, s: EFoodSession) {
 
 async function handler(cmd) {
 
-    session.log(`Logging in as [cyan]${cmd.username}[/cyan] ...`);
+    console.log(`Logging in as ${c.cyan(cmd.username)} ...`);
 
-    let response = await session.login(cmd.username, cmd.password);
+    let success = await session.login(cmd.username, cmd.password);
 
-    if (response.success)
-        session.log(`[green]Success![/green]`);
+    if (success)
+        console.log(c.green(`Success!`));
     else
-        session.log(`[red]Login failed:[/red] ${response.error.err_msg}`);
+        console.log(c.red(`Login failed.`));
 
 };

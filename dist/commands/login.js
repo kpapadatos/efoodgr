@@ -2,12 +2,14 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const inquirer = require('inquirer');
+Object.defineProperty(exports, "__esModule", { value: true });
+const inquirer = require("inquirer");
+const c = require("chalk");
 var session;
 function default_1(program, s) {
     session = s;
@@ -31,20 +33,19 @@ function default_1(program, s) {
                     message: 'Enter your password:'
                 }
             ]);
-            yield handler({ username: username, password: password });
+            yield handler({ username, password });
         });
     };
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = default_1;
 function handler(cmd) {
     return __awaiter(this, void 0, void 0, function* () {
-        session.log(`Logging in as [cyan]${cmd.username}[/cyan] ...`);
-        let response = yield session.login(cmd.username, cmd.password);
-        if (response.success)
-            session.log(`[green]Success![/green]`);
+        console.log(`Logging in as ${c.cyan(cmd.username)} ...`);
+        let success = yield session.login(cmd.username, cmd.password);
+        if (success)
+            console.log(c.green(`Success!`));
         else
-            session.log(`[red]Login failed:[/red] ${response.error.err_msg}`);
+            console.log(c.red(`Login failed.`));
     });
 }
 ;

@@ -1,25 +1,29 @@
-import EFoodSession from '../EFoodSession';
+import * as EFood from '../index';
+import * as c from 'chalk';
 
-var session: EFoodSession;
+var session: EFood.Session;
 
-export default function(program, s: EFoodSession) {
+export default function (program, s: EFood.Session) {
 
     session = s;
 
     program
-       .command('menu')
-       .description('Gets the menu of the selected store.')
-       .action(handler);
+        .command('menu')
+        .description('Gets the menu of the selected store.')
+        .action(handler);
 
 }
 
 async function handler(cmd) {
 
-   session.log(`Getting menu for [cyan]${session.cache.env.store}[/cyan] ...`);
+    console.log(`Getting menu for ${c.cyan(session.store.storeId)} ...`);
 
-   let items = await session.getMenu();
+    let store = await session.getStore();
 
-   for (let item of items)
-       session.log(`[cyan][IT_${item.id}] [${item.price}€] ${item.name}[/cyan]`);
+    let items = store.menu.categories as EFood.MenuCategories[];
+
+    for (let item of items)
+        for (let product of item.items)
+            console.log(c.cyan(`[${product.code}] [${product.price}€] ${product.name}`));
 
 };

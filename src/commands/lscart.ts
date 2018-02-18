@@ -1,25 +1,40 @@
-import EFoodSession from '../EFoodSession';
+import * as EFood from '..';
+import * as c from 'chalk';
 
-var session: EFoodSession;
+var session: EFood.Session;
 
-export default function(program, s: EFoodSession) {
+export default function (program, s: EFood.Session) {
 
     session = s;
 
     program
-       .command('lscart')
-       .description('Lists all cart items.')
-       .action(handler)
-       .consoleHandler = handler;
+        .command('lscart')
+        .description('Lists all cart items.')
+        .action(handler)
+        .consoleHandler = handler;
 
 }
 
 async function handler(cmd) {
 
-   let cart = session.getCart(cmd);
+    console.log('Getting cart contents...\n');
 
-   session.log(`Shop Id: [cyan]${cart.shop_id}[/cyan]`);
+    let cart = session.store.cart;
+    let store = await session.getStore();
+    let cartItems = 
+        (await Promise.all(
+            session.store.cart.products
+                .map(p => 
+                    session.getMenuItemOptions(p.product_id)
+                        .then(r => `[${p.total}€] ${r.data.name}`))));
 
-   cart.items.forEach(i => session.log(`[cyan]${JSON.stringify(i)}[/cyan]`));
+    console.log(`Store: ${c.cyan(store.information.title)}`);
+
+    console.log('\nCart contents');
+
+    for(let cartItem of cartItems)
+        console.log(c.cyan(cartItem));
+
+    console.log();
 
 };

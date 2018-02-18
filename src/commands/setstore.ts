@@ -1,9 +1,10 @@
-import EFoodSession from '../EFoodSession';
+import * as EFood from '../index';
+import * as c from 'chalk';
 import * as inquirer from 'inquirer';
 
-var session: EFoodSession;
+var session: EFood.Session;
 
-export default function(program, s: EFoodSession) {
+export default function(program, s: EFood.Session) {
 
     session = s;
 
@@ -13,13 +14,22 @@ export default function(program, s: EFoodSession) {
         .action(handler)
         .consoleHandler = async function() {
 
-            session.log(`Getting stores for address [cyan]${session.cache.env.address}[/cyan] ...`);
+            console.log(`Getting stores for address ${c.cyan(session.store.addressId)} ...`);
+            
+            let addresses = await session.getUserAddresses();
 
-            let shops = await session.getStores();
+            let address = addresses.filter(a => a.id == session.store.addressId)[0];
+            
+            let shops = await session.getStores({
+                latitude: address.latitude,
+                longitude: address.longitude,
+                onlyOpen: true
+            });
+
             let listOptions = [];
 
             for (let shop of shops)
-                listOptions.push(`[${shop.rating}*] [${shop.min}€] [${shop.eta}min] ${shop.name}`);
+                listOptions.push(`[${shop.average_rating}*] [${shop.minimum_order}€] [${shop.delivery_eta}min] ${shop.title}`);
 
             await new Promise(resolve => inquirer.prompt([{
                 name: 'setstore',
@@ -30,9 +40,9 @@ export default function(program, s: EFoodSession) {
 
                 let storeId = shops[listOptions.indexOf(input.setstore)].id;
 
-                session.log(`Setting store to [cyan]${storeId}[/cyan] ...`);
+                console.log(`Setting store to ${c.cyan(storeId)} ...`);
                 await session.setStore(storeId);
-                session.log(`[green]Success![/green]`);
+                console.log(c.green(`Success!`));
 
                 resolve();
 
@@ -43,7 +53,7 @@ export default function(program, s: EFoodSession) {
 }
 
 async function handler(storeId) {
-    session.log(`Setting store to [cyan]${storeId}[/cyan] ...`);
+    console.log(`Setting store to ${c.cyan(storeId)} ...`);
     await session.setStore(storeId);
-    session.log(`[green]Success![/green]`);
+    console.log(c.green(`Success!`));
 };

@@ -2,12 +2,14 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const inquirer = require('inquirer');
+Object.defineProperty(exports, "__esModule", { value: true });
+const c = require("chalk");
+const inquirer = require("inquirer");
 var session;
 function default_1(program, s) {
     session = s;
@@ -17,11 +19,17 @@ function default_1(program, s) {
         .action(handler)
         .consoleHandler = function () {
         return __awaiter(this, void 0, void 0, function* () {
-            session.log(`Getting stores for address [cyan]${session.cache.env.address}[/cyan] ...`);
-            let shops = yield session.getStores();
+            console.log(`Getting stores for address ${c.cyan(session.store.addressId)} ...`);
+            let addresses = yield session.getUserAddresses();
+            let address = addresses.filter(a => a.id == session.store.addressId)[0];
+            let shops = yield session.getStores({
+                latitude: address.latitude,
+                longitude: address.longitude,
+                onlyOpen: true
+            });
             let listOptions = [];
             for (let shop of shops)
-                listOptions.push(`[${shop.rating}*] [${shop.min}€] [${shop.eta}min] ${shop.name}`);
+                listOptions.push(`[${shop.average_rating}*] [${shop.minimum_order}€] [${shop.delivery_eta}min] ${shop.title}`);
             yield new Promise(resolve => inquirer.prompt([{
                     name: 'setstore',
                     message: 'Select a store',
@@ -30,22 +38,21 @@ function default_1(program, s) {
                 }]).then(function (input) {
                 return __awaiter(this, void 0, void 0, function* () {
                     let storeId = shops[listOptions.indexOf(input.setstore)].id;
-                    session.log(`Setting store to [cyan]${storeId}[/cyan] ...`);
+                    console.log(`Setting store to ${c.cyan(storeId)} ...`);
                     yield session.setStore(storeId);
-                    session.log(`[green]Success![/green]`);
+                    console.log(c.green(`Success!`));
                     resolve();
                 });
             }));
         });
     };
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = default_1;
 function handler(storeId) {
     return __awaiter(this, void 0, void 0, function* () {
-        session.log(`Setting store to [cyan]${storeId}[/cyan] ...`);
+        console.log(`Setting store to ${c.cyan(storeId)} ...`);
         yield session.setStore(storeId);
-        session.log(`[green]Success![/green]`);
+        console.log(c.green(`Success!`));
     });
 }
 ;

@@ -1,8 +1,9 @@
-import EFoodSession from '../EFoodSession';
+import * as EFood from '../index';
+import * as c from 'chalk';
 
-var session: EFoodSession;
+var session: EFood.Session;
 
-export default function(program, s: EFoodSession) {
+export default function (program, s: EFood.Session) {
 
     session = s;
 
@@ -15,10 +16,10 @@ export default function(program, s: EFoodSession) {
 
 async function handler() {
 
-    session.log('Getting addresses...');
+    console.log('Getting addresses...');
     let addresses = await session.getUserAddresses();
 
     for (let address of addresses)
-        session.log(`[cyan][${address.id}] ${address.title}[/cyan]`);
+        console.log(c.cyan(`[${address.id}] ${address.description}`));
 
 };

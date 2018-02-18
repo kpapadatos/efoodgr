@@ -1,8 +1,9 @@
-import EFoodSession from '../EFoodSession';
+import * as EFood from '../index';
+import * as c from 'chalk';
 
-var session: EFoodSession;
+var session: EFood.Session;
 
-export default function(program, s: EFoodSession) {
+export default function(program, s: EFood.Session) {
 
     session = s;
 
@@ -16,5 +17,5 @@ export default function(program, s: EFoodSession) {
 
 async function handler() {
    let u = await session.getUser();
-   session.log(`Logged in as [cyan][${u.id}] ${u.firstName} ${u.lastName} (${u.email})[/cyan].`);
+   console.log(`Logged in as ${c.cyan(`[${u.id}] ${u.first_name} ${u.last_name} (${u.email})`)}.`);
 };

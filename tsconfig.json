@@ -1,5 +1,5 @@
 {
-  "compileOnSave": false,
+  "compileOnSave": true,
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
@@ -10,51 +10,10 @@
     "outDir": "./dist"
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ],
   "filesGlob": [
-    "./typings/**/*.ts",
-    "./src/**/*.ts",
-    "./gulpfile.ts"
-  ],
-  "atom": {
-    "rewriteTsconfig": true
-  },
-  "files": [
-    "./typings/chalk/chalk.d.ts",
-    "./typings/commander/commander.d.ts",
-    "./typings/del/del.d.ts",
-    "./typings/eventemitter2/eventemitter2.d.ts",
-    "./typings/glob/glob.d.ts",
-    "./typings/gulp-jsvalidate/gulp-jsvalidate.d.ts",
-    "./typings/gulp-load-plugins/gulp-load-plugins.d.ts",
-    "./typings/gulp-typescript/gulp-typescript.d.ts",
-    "./typings/gulp/gulp.d.ts",
-    "./typings/inquirer/inquirer.d.ts",
-    "./typings/minimatch/minimatch.d.ts",
-    "./typings/node/node.d.ts",
-    "./typings/orchestrator/orchestrator.d.ts",
-    "./typings/q/Q.d.ts",
-    "./typings/rx/rx-lite.d.ts",
-    "./typings/through/through.d.ts",
-    "./src/cli.ts",
-    "./src/commands/addaddress.ts",
-    "./src/commands/addcart.ts",
-    "./src/commands/dropaddr.ts",
-    "./src/commands/dropcart.ts",
-    "./src/commands/item.ts",
-    "./src/commands/login.ts",
-    "./src/commands/logout.ts",
-    "./src/commands/ls.ts",
-    "./src/commands/lsaddr.ts",
-    "./src/commands/lscart.ts",
-    "./src/commands/menu.ts",
-    "./src/commands/mkorder.ts",
-    "./src/commands/setaddr.ts",
-    "./src/commands/setstore.ts",
-    "./src/commands/user.ts",
-    "./src/EFoodSession.ts",
-    "./src/overwriteCookies.ts",
-    "./gulpfile.ts"
+    "./src/**/*.ts"
   ]
 }

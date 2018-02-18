@@ -1,7 +1,4 @@
 node_modules/*
-bower_components/*
-App_Data/*
-Properties/*
-cache.json
+src/*
 .git/*
 .gitignore

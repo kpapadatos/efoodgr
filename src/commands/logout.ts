@@ -1,8 +1,9 @@
-import EFoodSession from '../EFoodSession';
+import * as EFood from '../index';
+import * as c from 'chalk';
 
-var session: EFoodSession;
+var session: EFood.Session;
 
-export default function(program, s: EFoodSession) {
+export default function(program, s: EFood.Session) {
 
     session = s;
 
@@ -16,7 +17,7 @@ export default function(program, s: EFoodSession) {
 }
 
 async function handler(addressId) {
-    session.log(`Deleting all local data...`);
+    console.log(`Deleting all local data...`);
     await session.logout();
-    session.log('[green]Success![/green]');
+    console.log(c.green('Success!'));
 };

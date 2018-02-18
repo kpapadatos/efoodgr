@@ -1,9 +1,10 @@
-import EFoodSession from '../EFoodSession';
+import * as EFood from '../index';
 import * as inquirer from 'inquirer';
+import * as c from 'chalk';
 
-var session: EFoodSession;
+var session: EFood.Session;
 
-export default function(program, s: EFoodSession) {
+export default function (program, s: EFood.Session) {
 
     session = s;
 
@@ -12,77 +13,152 @@ export default function(program, s: EFoodSession) {
         .alias('ac')
         .description('Adds cart entry.')
         .option('-i, --item [itemCode]', 'Item code.')
-        .option('-c, --config [config]', 'Item options. <optionNumber:choice1,choiceN::optionNumber2:choice>')
+        .option('-c, --config [config]', 'Item options. <materialCode1,materialCode2,materialCodeN>')
         .option('-q, --quantity [number]', 'Item quantity.')
+        .option('--comment [comment]', 'A comment for this item.')
+        .option('--offer [offer]', 'The offer line Id for this item.')
         .action(handler)
-        .consoleHandler = async function() {
+        .consoleHandler = async function () {
 
-            session.log(`Getting menu items ...`);
+            console.log(`Getting menu items ...`);
 
-            let items = await session.getMenu();
+            let store = await session.getStore();
+            let categories = store.menu.categories;
+            let offers = store.offers;
+
+            let itemGroup = 'Menu';
+
+            if (offers.length)
+                itemGroup = (await inquirer.prompt([{
+                    name: 'itemGroup',
+                    message: 'Select an item group',
+                    type: 'list',
+                    choices: ['Offers', 'Menu']
+                }])).itemGroup;
+
+
             let choices = [];
+            let itemSets: EFood.Product[][] = [];
+            let items: EFood.Product[] = [];
 
-            for (let item of items)
-                choices.push(`[${item.price}€] ${item.name}`);
+            if (itemGroup == 'Menu') {
+                let input = (await inquirer.prompt([{
+                    name: 'category',
+                    message: 'Select a category',
+                    type: 'list',
+                    choices: categories.map(o => o.name)
+                }]));
 
-            let input = await inquirer.prompt([{
-                name: 'selectitem',
-                message: 'Select an item',
-                type: 'list',
-                choices
-            }]);
+                let category = categories.filter(c => c.name == input.category)[0];
 
-            let itemId = 'IT_' + items[choices.indexOf(input.selectitem)].id;
-
-            session.log(`Getting options for [cyan]${itemId}[/cyan] ...`);
-
-            let itemChoices = await session.getItem(itemId);
-
-            let itemConfig;
-
-            if (itemChoices.length) {
-                itemConfig = [];
-                for (let choice of itemChoices) {
-                    let choices = choice.choices.map(c => `[${c.price.trim()}€] ${c.title}`);
-                    let input = await inquirer.prompt([{
-                        name: 'opt',
-                        message: choice.title,
-                        type: 'checkbox',
-                        choices
-                    }]);
-                    if (input.opt.length) {
-                        itemConfig.push(
-                            choice.id + ':' +
-                            input.opt
-                                .map(s => choice.choices[choices.indexOf(s)].id)
-                                .join(',')
-                        );
-                    }
+                for (let product of category.items) {
+                    choices.push(`[${product.price}€] ${product.name}`);
+                    items.push(product);
                 }
-                itemConfig = itemConfig.join('::');
+
+                itemSets = [items];
+            }
+            else {
+                let input = (await inquirer.prompt([{
+                    name: 'offer',
+                    message: 'Select an offer',
+                    type: 'list',
+                    choices: offers.map(o => `[${o.price}€] ${o.description}`)
+                }]));
+
+                let offer = offers.filter(o => `[${o.price}€] ${o.description}` == input.offer)[0];
+
+                for (let tier of offer.tiers) {
+                    tier.items.forEach((i: EFood.Product) => i.offer_line = tier.offer_line);
+                    itemSets.push(tier.items as EFood.Product[]);
+                }
             }
 
-            let { quantity } = await inquirer.prompt([{
-                name: 'quantity',
-                message: 'Quantity'
-            }]);
+            for (let items of itemSets) {
 
-            session.log(`Adding item to cart...`);
+                let priceNameTemplate = i => i.price ? `[${i.price}€] ${i.name}` : i.name;
+                let choices = items.map(priceNameTemplate);
+                let input = await inquirer.prompt([{
+                    name: 'selectedItem',
+                    message: 'Select an item',
+                    type: 'list',
+                    choices
+                }]);
 
-            await session.addToCart({
-                quantity,
-                item: itemId,
-                config: itemConfig
-            });
+                let selectedItem = items[choices.indexOf(input.selectedItem)];
+                let itemCode = selectedItem.code;
+                let offer = selectedItem.offer_line;
 
-            session.log(`[green]Done.[/green]`);
+                console.log(`Getting options for ${c.cyan(selectedItem.name)} ...`);
+
+                let menuItemResponse = await session.getMenuItemOptions(itemCode);
+
+                let itemOptions = menuItemResponse.data.tiers as EFood.OptionTier[];
+
+                let itemConfig: any = '';
+                let price = menuItemResponse.data.price as number;
+
+                if (itemOptions.length) {
+                    itemConfig = [];
+                    for (let tier of itemOptions) {
+                        let choices = tier.options.map(priceNameTemplate);
+
+                        let input = await inquirer.prompt([{
+                            name: 'opt',
+                            message: tier.name,
+                            type: tier.type == 'radio' ? 'list' : 'checkbox',
+                            choices
+                        }]);
+
+                        if (typeof input.opt == 'string')
+                            input.opt = [input.opt];
+
+                        if (input.opt.length)
+                            itemConfig.push(
+                                input.opt
+                                    .map(s => {
+                                        let option = tier.options[choices.indexOf(s)]
+                                        price += option.price;
+                                        return option.code;
+                                    })
+                            );
+                    }
+
+                    itemConfig = itemConfig.join(',');
+                }
+
+                let { comment }: { comment: string } = await inquirer.prompt([{
+                    name: 'comment',
+                    message: 'Comment'
+                }]);
+
+                let { quantity }: { quantity: number } = await inquirer.prompt([{
+                    name: 'quantity',
+                    message: 'Quantity',
+                    default: 1
+                }]);
+
+                console.log(`Adding item to cart...`);
+
+                session.addToCart({
+                    quantity: quantity || 1,
+                    item: itemCode,
+                    config: itemConfig,
+                    offer,
+                    price,
+                    comment
+                });
+
+            }
+
+            console.log(c.green(`Done.`));
 
         };
 
 }
 
 async function handler(cmd) {
-    session.log(`Adding item to cart...`);
+    console.log(`Adding item to cart...`);
     await session.addToCart(cmd);
-    session.log(`[green]Done.[/green]`);
+    console.log(c.green(`Done.`));
 };

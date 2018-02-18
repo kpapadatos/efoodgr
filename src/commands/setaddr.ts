@@ -1,9 +1,10 @@
-import EFoodSession from '../EFoodSession';
+import * as EFood from '../index';
 import * as inquirer from 'inquirer';
+import * as c from 'chalk';
 
-var session: EFoodSession;
+var session: EFood.Session;
 
-export default function(program, s: EFoodSession) {
+export default function (program, s: EFood.Session) {
 
     session = s;
 
@@ -11,15 +12,15 @@ export default function(program, s: EFoodSession) {
         .command('setaddr [addressId]')
         .description('Sets the current address.')
         .action(handler)
-        .consoleHandler = async function() {
+        .consoleHandler = async function () {
 
-            session.log(`Getting user addresses ...`);
+            console.log(`Getting user addresses ...`);
 
             let addresses = await session.getUserAddresses();
             let choices = [];
 
             for (let address of addresses)
-                choices.push(`[${address.id}] ${address.title}`);
+                choices.push(`[${address.id}] ${address.description}`);
 
             let input = await inquirer.prompt([{
                 name: 'setaddr',
@@ -30,16 +31,16 @@ export default function(program, s: EFoodSession) {
 
             let addressId = addresses[choices.indexOf(input.setaddr)].id;
 
-            session.log(`Setting address to [cyan]${addressId}[/cyan] ...`);
+            console.log(`Setting address to ${c.cyan(addressId)} ...`);
             await session.setAddress(addressId);
-            session.log(`[green]Success![/green]`);
+            console.log(c.green(`Success!`));
 
         };
 
 }
 
 async function handler(addressId) {
-    session.log(`Setting user address to [cyan]${addressId}[/cyan] ...`);
+    console.log(`Setting user address to ${c.cyan(addressId)} ...`);
     await session.setAddress(addressId);
-    session.log(`[green]Success![/green]`);
+    console.log(c.green(`Success!`));
 };
