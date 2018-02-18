@@ -24,25 +24,36 @@ import * as EFood from 'efoodgr';
 let session = new EFood.Session({ persistent: true });
 
 (async function main() {
+    
+    await session.login('your.email@efood.gr', 'your-password');
 
-  await session.login('your.email@efood.gr', 'your-password');
-  
-  let addresses = await session.getUserAddresses();
-  
-  await session.setAddress(addresses[0].id);
-  
-  let nearbyStores = await session.getStores();
-  
-  await session.setStore(nearbyStores[0].id);
-  
-  let menu = await session.getMenu();
-  
-  let menuItem = menu[0];
-  
-  // TODO write the rest of this process...
-  // ... add items with session.addToCart(itemOptions)
-  
-  await session.makeOrder();
+    let addresses = await session.getUserAddresses();
+
+    await session.setAddress(addresses[0].id);
+
+    let nearbyStores = await session.getStores({
+        latitude: address.latitude,
+        longitude: address.longitude,
+        onlyOpen: true
+    });
+
+    await session.setStore(nearbyStores[0].id);
+
+    let menu = await session.getStore();
+
+    let menuItem = menu[0];
+
+    // @todo Document the rest of this process...
+    // ... add items with session.addToCart(itemOptions)
+    // See how it's done in src/commands/addcart.ts
+
+    await session.validateOrder();
+
+    let orderId = await session.submitOrder();
+
+    // Do this a couple of times until it is
+    // accepted or rejected
+    await session.getOrderStatus(orderId);
 
 })();
 

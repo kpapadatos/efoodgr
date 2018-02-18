@@ -22,10 +22,10 @@ async function handler() {
 
     let address = addresses.filter(a => a.id == session.store.addressId)[0];
 
-    let shops = await session.getStores({ 
-        latitude: address.latitude, 
+    let shops = await session.getStores({
+        latitude: address.latitude,
         longitude: address.longitude,
-        onlyOpen: true 
+        onlyOpen: true
     });
 
     for (let shop of shops)
