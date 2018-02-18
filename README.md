@@ -3,6 +3,8 @@
 # efoodgr
 An unofficial tool to manage your efood.gr account and place orders.
 
+![demo](https://user-images.githubusercontent.com/3382344/36356704-2f057266-14fe-11e8-94eb-07a30f1157f4.gif)
+
 ## Contents
 * [Installation](#installation)
 * [EFood.Session class](#efoodsession-class)
@@ -15,7 +17,7 @@ An unofficial tool to manage your efood.gr account and place orders.
 ### Installation
 `npm i -g efoodgr`
 
-### EFoodSession class
+### EFood.Session class
 Usage:
 ```ts
 import * as EFood from 'efoodgr';
