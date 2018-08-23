@@ -23,8 +23,6 @@ Object.defineProperty(Object.prototype, 'getQuestion', {
         };
     }
 });
-const fs = require("fs");
-const path = require("path");
 const program = require("commander");
 const EFood = require("./index");
 const inquirer = require("inquirer");
@@ -32,9 +30,19 @@ const chalk = require("chalk");
 var session = new EFood.Session({ persistent: true });
 program.usage('<command> [options]');
 program.version(_package.version);
-for (let file of fs.readdirSync(path.resolve(__dirname, 'commands')))
-    if (/\.js$/.test(file))
-        require(`./commands/${file}`).default(program, session);
+require('./commands/addcart').default(program, session);
+require('./commands/login').default(program, session);
+require('./commands/logout').default(program, session);
+require('./commands/ls').default(program, session);
+require('./commands/lsaddr').default(program, session);
+require('./commands/lscart').default(program, session);
+require('./commands/menu').default(program, session);
+require('./commands/mkorder').default(program, session);
+require('./commands/setaddr').default(program, session);
+require('./commands/setstore').default(program, session);
+require('./commands/user').default(program, session);
+require('./commands/payment').default(program, session);
+require('./commands/validate').default(program, session);
 program.parse(process.argv);
 var consoleCommandIndex = {};
 for (let command of program['commands']) {

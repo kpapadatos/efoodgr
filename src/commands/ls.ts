@@ -16,6 +16,9 @@ export default function (program, s: EFood.Session) {
 }
 
 async function handler() {
+    if (session.store.addressId === undefined)
+        console.log(`No address is set. Run ${c.cyan(`setaddr`)} first.`);
+        return;
 
     console.log(`Getting stores for address ${c.cyan(session.store.addressId)} ...`);
     let addresses = await session.getUserAddresses();

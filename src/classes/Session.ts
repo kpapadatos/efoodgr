@@ -57,7 +57,7 @@ export class Session {
 
         if (response.status == 'ok') {
             this.store.sessionId = response.data.session_id;
-            this.store.user = response.data.user as Models.User;
+            this.store.user = trimName(response.data.user as Models.User);
         }
 
         return response.status == 'ok';
@@ -455,4 +455,10 @@ function RequiresCart(target: any, propertyName: string, descriptor: TypedProper
             throw new Error("This action requires a cart with at least 1 product.");
         return method.apply(session, arguments);
     }
+}
+
+function trimName(user: Models.User) {
+    user.first_name = user.first_name.trim();
+    user.last_name = user.last_name.trim();
+    return user;
 }

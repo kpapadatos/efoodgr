@@ -21,6 +21,9 @@ function default_1(program, s) {
 exports.default = default_1;
 function handler() {
     return __awaiter(this, void 0, void 0, function* () {
+        if (session.store.addressId === undefined)
+            console.log(`No address is set. Run ${c.cyan(`setaddr`)} first.`);
+        return;
         console.log(`Getting stores for address ${c.cyan(session.store.addressId)} ...`);
         let addresses = yield session.getUserAddresses();
         let address = addresses.filter(a => a.id == session.store.addressId)[0];

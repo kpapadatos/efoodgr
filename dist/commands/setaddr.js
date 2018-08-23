@@ -19,6 +19,9 @@ function default_1(program, s) {
         .action(handler)
         .consoleHandler = function () {
         return __awaiter(this, void 0, void 0, function* () {
+            if (session.store.sessionId === undefined)
+                console.log(`You need to login to perform this action. Run ${c.cyan(`login`)} first.`);
+            return;
             console.log(`Getting user addresses ...`);
             let addresses = yield session.getUserAddresses();
             let choices = [];

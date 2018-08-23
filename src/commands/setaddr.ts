@@ -13,6 +13,9 @@ export default function (program, s: EFood.Session) {
         .description('Sets the current address.')
         .action(handler)
         .consoleHandler = async function () {
+            if (session.store.sessionId === undefined)
+                console.log(`You need to login to perform this action. Run ${c.cyan(`login`)} first.`)
+                return;
 
             console.log(`Getting user addresses ...`);
 
