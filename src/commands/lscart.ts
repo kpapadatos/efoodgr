@@ -1,10 +1,10 @@
+import c from 'chalk';
+import { CommanderStatic } from 'commander';
 import * as EFood from '..';
-import * as c from 'chalk';
 
-var session: EFood.Session;
+let session: EFood.Session;
 
-export default function (program, s: EFood.Session) {
-
+export default function (program: CommanderStatic, s: EFood.Session) {
     session = s;
 
     program
@@ -12,29 +12,26 @@ export default function (program, s: EFood.Session) {
         .description('Lists all cart items.')
         .action(handler)
         .consoleHandler = handler;
-
 }
 
-async function handler(cmd) {
-
+async function handler(cmd: any) {
     console.log('Getting cart contents...\n');
 
-    let cart = session.store.cart;
-    let store = await session.getStore();
-    let cartItems = 
+    const store = await session.getStore();
+    const cartItems =
         (await Promise.all(
             session.store.cart.products
-                .map(p => 
+                .map((p) =>
                     session.getMenuItemOptions(p.product_id)
-                        .then(r => `[${p.total}€] ${r.data.name}`))));
+                        .then((r) => `[${p.total}€] ${r.data.name}`))));
 
     console.log(`Store: ${c.cyan(store.information.title)}`);
 
     console.log('\nCart contents');
 
-    for(let cartItem of cartItems)
+    for (const cartItem of cartItems) {
         console.log(c.cyan(cartItem));
+    }
 
     console.log();
-
-};
+}

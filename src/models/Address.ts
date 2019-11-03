@@ -1,9 +1,9 @@
-import { Region } from './Region';
+import { IRegion } from './Region';
 
 /**
  * Represents an e-food.gr user address.
  */
-export interface Address {
+export interface IAddress {
     /**
      * This is a string with the entire address' info as a title.
      */
@@ -74,5 +74,5 @@ export interface Address {
      * A region descriptor, possibly provided by
      * Google Maps.
      */
-    region: Region;
+    region: IRegion;
 }

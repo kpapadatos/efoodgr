@@ -1,6 +1,6 @@
-import { CartProduct } from ".";
+import { ICartProduct } from '.';
 
-export interface Order {
+export interface IOrder {
     created: string;
     payment_method: string;
     discount: any[];
@@ -9,6 +9,6 @@ export interface Order {
     coupons: any[];
     amount: number;
     address_id: number;
-    products: CartProduct[];
+    products: ICartProduct[];
     payment_token?: string;
 }

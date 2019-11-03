@@ -1,11 +1,11 @@
-import * as EFood from '../index';
+import c from 'chalk';
+import { CommanderStatic } from 'commander';
 import * as inquirer from 'inquirer';
-import * as c from 'chalk';
+import * as EFood from '../index';
 
-var session: EFood.Session;
+let session: EFood.Session;
 
-export default function (program, s: EFood.Session) {
-
+export default function (program: CommanderStatic, s: EFood.Session) {
     session = s;
 
     program
@@ -15,63 +15,62 @@ export default function (program, s: EFood.Session) {
         .option('--token [paymentToken]', 'Payment token, if not paying with cash.')
         .option('--hash [paymentHashcode]', 'Payment hashcode.')
         .action(handler)
-        .consoleHandler = async function () {
-
+        .consoleHandler = async () => {
             console.log(`Getting payment methods ...`);
 
-            let store = await session.getStore();
-            let choices = [];
+            const store = await session.getStore();
+            const choices = [];
 
-            if (store.information.has_cash_on_delivery)
+            if (store.information.has_cash_on_delivery) {
                 choices.push('Cash');
+            }
 
-            if (store.information.has_credit)
+            if (store.information.has_credit) {
                 choices.push('Credit card');
+            }
 
-            let input = await inquirer.prompt([{
-                name: 'method',
+            const input = await inquirer.prompt([{
+                choices,
                 message: 'Select a payment method',
-                type: 'list',
-                choices
+                name: 'method',
+                type: 'list'
             }]);
 
-            if(input.method == 'Cash') {
+            if (input.method === 'Cash') {
                 session.setPayment({
+                    paymentHashcode: null,
                     paymentMethod: 'cash',
-                    paymentToken: null,
-                    paymentHashcode: null
+                    paymentToken: null
                 });
             }
 
-            if (input.method == 'Credit card') {
-                let cards = await session.getCreditCards();
+            if (input.method === 'Credit card') {
+                const cards = await session.getCreditCards();
 
-                let input = await inquirer.prompt([{
-                    name: 'card',
+                const cardInput = await inquirer.prompt([{
+                    choices: cards.map((card) => `[${card.card_type}] ${card.card_number}`),
                     message: 'Select a card',
-                    type: 'list',
-                    choices: cards.map(c => `[${c.card_type}] ${c.card_number}`)
+                    name: 'card',
+                    type: 'list'
                 }]);
 
-                let selectedCard = cards.filter(c => `[${c.card_type}] ${c.card_number}` == input.card)[0];
+                const selectedCard = cards.find((card) => `[${card.card_type}] ${card.card_number}` === cardInput.card);
 
                 session.setPayment({
+                    paymentHashcode: selectedCard.hashcode,
                     paymentMethod: 'piraeus.creditcard',
-                    paymentToken: selectedCard.id,
-                    paymentHashcode: selectedCard.hashcode
+                    paymentToken: selectedCard.id
                 });
             }
 
             console.log(c.green(`Done.`));
-
         };
-
 }
 
-async function handler(cmd) {
+async function handler(cmd: any) {
     console.log(`Setting payment method...`);
     session.store.paymentMethod = cmd.type;
     session.store.paymentToken = cmd.token;
     session.store.paymentHashcode = cmd.hash;
     console.log(c.green(`Done.`));
-};
+}

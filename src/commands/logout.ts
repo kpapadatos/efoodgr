@@ -1,10 +1,10 @@
+import c from 'chalk';
+import { CommanderStatic } from 'commander';
 import * as EFood from '../index';
-import * as c from 'chalk';
 
-var session: EFood.Session;
+let session: EFood.Session;
 
-export default function(program, s: EFood.Session) {
-
+export default function (program: CommanderStatic, s: EFood.Session) {
     session = s;
 
     program
@@ -13,11 +13,10 @@ export default function(program, s: EFood.Session) {
         .description('Removes all local data.')
         .action(handler)
         .consoleHandler = handler;
-
 }
 
-async function handler(addressId) {
+async function handler(addressId: string) {
     console.log(`Deleting all local data...`);
     await session.logout();
     console.log(c.green('Success!'));
-};
+}

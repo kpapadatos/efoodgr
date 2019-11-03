@@ -1,10 +1,10 @@
+import c from 'chalk';
+import { CommanderStatic } from 'commander';
 import * as EFood from '../index';
-import * as c from 'chalk';
 
-var session: EFood.Session;
+let session: EFood.Session;
 
-export default function (program, s: EFood.Session) {
-
+export default function (program: CommanderStatic, s: EFood.Session) {
     session = s;
 
     program
@@ -12,23 +12,21 @@ export default function (program, s: EFood.Session) {
         .description('Lists stores for current address.')
         .action(handler)
         .consoleHandler = handler;
-
 }
 
 async function handler() {
+    console.log(`Getting stores for address ${c.cyan(session.store.addressId.toString())} ...`);
+    const addresses = await session.getUserAddresses();
 
-    console.log(`Getting stores for address ${c.cyan(session.store.addressId)} ...`);
-    let addresses = await session.getUserAddresses();
+    const address = addresses.filter((a) => a.id === session.store.addressId)[0];
 
-    let address = addresses.filter(a => a.id == session.store.addressId)[0];
-
-    let shops = await session.getStores({
+    const shops = await session.getStores({
         latitude: address.latitude,
         longitude: address.longitude,
         onlyOpen: true
     });
 
-    for (let shop of shops)
+    for (const shop of shops) {
         console.log(c.cyan(`[${shop.id}] [${shop.average_rating}*] [${shop.minimum_order}€] [${shop.delivery_eta}min] ${shop.title}`));
-
-};
+    }
+}

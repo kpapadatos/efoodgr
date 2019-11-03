@@ -1,11 +1,11 @@
+import chalk from 'chalk';
+import { CommanderStatic } from 'commander';
 import * as EFood from '../index';
-import * as inquirer from 'inquirer';
-import * as c from 'chalk';
 
-var session: EFood.Session;
+let session: EFood.Session;
+const { green, red } = chalk;
 
-export default function (program, s: EFood.Session) {
-
+export default function (program: CommanderStatic, s: EFood.Session) {
     session = s;
 
     program
@@ -13,18 +13,16 @@ export default function (program, s: EFood.Session) {
         .description('Validates your current cart.')
         .action(handler)
         .consoleHandler = handler;
-
 }
 
-async function handler(cmd) {
-
+async function handler() {
     console.log(`Validating...`);
 
-    let success = await session.validateOrder();
+    const success = await session.validateOrder();
 
-    if (success)
-        console.log(c.green(`Success!`));
-    else
-        console.log(c.red(`Validation failed.`));
-
-};
+    if (success) {
+        console.log(green(`Success!`));
+    } else {
+        console.log(red(`Validation failed.`));
+    }
+}

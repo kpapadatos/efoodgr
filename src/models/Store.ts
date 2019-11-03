@@ -1,20 +1,20 @@
-import { MenuCategories } from ".";
-import { Offer } from "./Menu";
+import { IMenuCategories } from '.';
+import { IOffer } from './Menu';
 
 /**
  * Represents a store listing.
  */
-export interface Store extends StoreInformation {
-    information?: StoreInformation;
+export interface IStore extends IStoreInformation {
+    information?: IStoreInformation;
 
-    offers: Offer[];
+    offers: IOffer[];
 
     menu: {
-        categories: MenuCategories[];
-    }
+        categories: IMenuCategories[];
+    };
 }
 
-export interface StoreInformation {
+export interface IStoreInformation {
     id: number;
     title: string;
     average_rating: number;
@@ -49,10 +49,10 @@ export interface StoreInformation {
     is_favorite: boolean;
     description: string;
     distance: number;
-    timetable: {
+    timetable: Array<{
         day: string;
         times: string;
-    }[];
+    }>;
     is_promoted: boolean;
     offer_tags: string[];
     has_discounts: boolean;
