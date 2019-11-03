@@ -6,9 +6,6 @@
   "main": "./dist/index.js",
   "types": "./src/index.ts",
   "readme": "README.md",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "author": {
     "email": "k.papadatos@pobuca.com",
     "name": "Kosmas Papadatos",
