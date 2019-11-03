@@ -1,6 +1,6 @@
-node_modules/*
-bower_components/*
-App_Data/*
-Properties/*
-cache.json
-tmp/*
+.vscode
+node_modules
+.nyc_output
+coverage
+dist
+test-results.xml
