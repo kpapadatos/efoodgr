@@ -1,10 +1,7 @@
-/**
- * The base API response model.
- */
-export interface APIResponse {
+export interface IAPIResponse {
     data: any;
-    error_code: string;
-    message: string;
     provisioning: {};
-    status: string;
+    status: 'ok';
+    error_code: 'success';
+    message: 'Επιτυχής κλήση';
 }

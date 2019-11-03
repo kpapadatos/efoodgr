@@ -1,46 +1,44 @@
-import * as EFood from '../index';
+import c from 'chalk';
+import { CommanderStatic } from 'commander';
 import * as inquirer from 'inquirer';
-import * as c from 'chalk';
+import * as EFood from '../index';
 
-var session: EFood.Session;
+let session: EFood.Session;
 
-export default function (program, s: EFood.Session) {
-
+export default function (program: CommanderStatic, s: EFood.Session) {
     session = s;
 
     program
         .command('setaddr [addressId]')
         .description('Sets the current address.')
         .action(handler)
-        .consoleHandler = async function () {
-
+        .consoleHandler = async () => {
             console.log(`Getting user addresses ...`);
 
-            let addresses = await session.getUserAddresses();
-            let choices = [];
+            const addresses = await session.getUserAddresses();
+            const choices = [];
 
-            for (let address of addresses)
+            for (const address of addresses) {
                 choices.push(`[${address.id}] ${address.description}`);
+            }
 
-            let input = await inquirer.prompt([{
-                name: 'setaddr',
+            const input = await inquirer.prompt([{
+                choices,
                 message: 'Select current address',
+                name: 'setaddr',
                 type: 'list',
-                choices
             }]);
 
-            let addressId = addresses[choices.indexOf(input.setaddr)].id;
+            const addressId = addresses[choices.indexOf(input.setaddr)].id;
 
-            console.log(`Setting address to ${c.cyan(addressId)} ...`);
+            console.log(`Setting address to ${c.cyan(addressId.toString())} ...`);
             await session.setAddress(addressId);
             console.log(c.green(`Success!`));
-
         };
-
 }
 
-async function handler(addressId) {
-    console.log(`Setting user address to ${c.cyan(addressId)} ...`);
+async function handler(addressId: number) {
+    console.log(`Setting user address to ${c.cyan(addressId.toString())} ...`);
     await session.setAddress(addressId);
     console.log(c.green(`Success!`));
-};
+}

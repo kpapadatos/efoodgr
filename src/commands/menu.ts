@@ -1,29 +1,28 @@
+import c from 'chalk';
+import { CommanderStatic } from 'commander';
 import * as EFood from '../index';
-import * as c from 'chalk';
 
-var session: EFood.Session;
+let session: EFood.Session;
 
-export default function (program, s: EFood.Session) {
-
+export default function (program: CommanderStatic, s: EFood.Session) {
     session = s;
 
     program
         .command('menu')
         .description('Gets the menu of the selected store.')
         .action(handler);
-
 }
 
-async function handler(cmd) {
+async function handler(cmd: any) {
+    console.log(`Getting menu for ${c.cyan(session.store.storeId.toString())} ...`);
 
-    console.log(`Getting menu for ${c.cyan(session.store.storeId)} ...`);
+    const store = await session.getStore();
 
-    let store = await session.getStore();
+    const items = store.menu.categories as EFood.IMenuCategories[];
 
-    let items = store.menu.categories as EFood.MenuCategories[];
-
-    for (let item of items)
-        for (let product of item.items)
+    for (const item of items) {
+        for (const product of item.items) {
             console.log(c.cyan(`[${product.code}] [${product.price}€] ${product.name}`));
-
-};
+        }
+    }
+}

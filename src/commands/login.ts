@@ -1,11 +1,11 @@
-import * as EFood from '../index';
+import c from 'chalk';
+import { CommanderStatic } from 'commander';
 import * as inquirer from 'inquirer';
-import * as c from 'chalk';
+import * as EFood from '../index';
 
-var session: EFood.Session;
+let session: EFood.Session;
 
-export default function (program, s: EFood.Session) {
-
+export default function (program: CommanderStatic, s: EFood.Session) {
     session = s;
 
     program
@@ -15,35 +15,31 @@ export default function (program, s: EFood.Session) {
         .option('-u, --username <user>', 'user identification')
         .option('-p, --password <password>', 'user password')
         .action(handler)
-        .consoleHandler = async function () {
-
-            let { username, password } = await inquirer.prompt([
+        .consoleHandler = async () => {
+            const { username, password } = await inquirer.prompt([
                 {
-                    name: 'username',
-                    message: 'Enter the email address of your account:'
+                    message: 'Enter the email address of your account:',
+                    name: 'username'
                 },
                 {
+                    message: 'Enter your password:',
                     name: 'password',
-                    type: 'password',
-                    message: 'Enter your password:'
+                    type: 'password'
                 }
             ]);
 
             await handler({ username, password });
-
         };
-
 }
 
-async function handler(cmd) {
-
+async function handler(cmd: any) {
     console.log(`Logging in as ${c.cyan(cmd.username)} ...`);
 
-    let success = await session.login(cmd.username, cmd.password);
+    const success = await session.login(cmd.username, cmd.password);
 
-    if (success)
+    if (success) {
         console.log(c.green(`Success!`));
-    else
+    } else {
         console.log(c.red(`Login failed.`));
-
-};
+    }
+}

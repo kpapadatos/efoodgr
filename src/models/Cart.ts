@@ -1,11 +1,11 @@
 export class Cart {
-    coupons: string[];
-    deliveryType: string;
-    paymentMethod: string;
-    products: CartProduct[] = [];
+    public coupons: string[];
+    public deliveryType: string;
+    public paymentMethod: string;
+    public products: ICartProduct[] = [];
 }
 
-export interface CartProduct {
+export interface ICartProduct {
     product_id: string;
     quantity: number;
     price: number;

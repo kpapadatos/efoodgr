@@ -1,7 +1,7 @@
 /**
  * Represents an e-food.gr user as returned by the login call.
  */
-export interface User {
+export interface IUser {
     id: number;
     cellphone: string;
     email: string;

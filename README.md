@@ -1,6 +1,12 @@
 <img src="https://avatars2.githubusercontent.com/u/15088210?v=3&s=96" alt="Google Cloud Platform logo" title="Google Cloud Platform" align="right" height="96" width="96"/>
 
-# efoodgr
+# 🍔 efoodgr ![npm](https://img.shields.io/npm/v/@pobuca/xsc) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/@pobuca/xsc) ![npm collaborators](https://img.shields.io/npm/collaborators/@pobuca/xsc) [![Downloads](https://img.shields.io/npm/dw/@pobuca/xsc)](https://www.npmjs.com/package/@pobuca/xsc)
+![Azure DevOps builds](https://img.shields.io/azure-devops/build/siebendev/pobuca%20connect/141)
+[![Codacy Badge](https://img.shields.io/codacy/grade/9ffa7850a79d411a99467c64efeaf5ef)](https://www.codacy.com/manual/Pobuca/xsc?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Pobuca-Ltd/xsc&amp;utm_campaign=Badge_Grade)
+[![Maintainability](https://img.shields.io/codeclimate/maintainability-percentage/Pobuca-Ltd/xsc)](https://codeclimate.com/github/Pobuca-Ltd/xsc/maintainability)
+[![Codacy Badge](https://img.shields.io/codacy/coverage/9ffa7850a79d411a99467c64efeaf5ef/master)](https://www.codacy.com/manual/Pobuca/xsc?utm_source=github.com&utm_medium=referral&utm_content=Pobuca-Ltd/xsc&utm_campaign=Badge_Coverage)
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
+
 An unofficial tool to manage your efood.gr account and place orders.
 
 ![demo](https://user-images.githubusercontent.com/3382344/36356704-2f057266-14fe-11e8-94eb-07a30f1157f4.gif)

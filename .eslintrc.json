@@ -20,6 +20,7 @@
     ],
     "rules": {
         "linebreak-style": "off",
+        "comma-dangle": 0,
         "indent": [
             "error",
             4
