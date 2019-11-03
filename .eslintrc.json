@@ -1,11 +1,11 @@
 {
     "env": {
+        "browser": true,
         "commonjs": true,
-        "es6": true,
-        "node": true
+        "es6": true
     },
     "extends": [
-        "airbnb-base"
+        "google"
     ],
     "globals": {
         "Atomics": "readonly",
@@ -19,5 +19,18 @@
         "@typescript-eslint"
     ],
     "rules": {
+        "linebreak-style": "off",
+        "indent": [
+            "error",
+            4
+        ],
+        "max-len": [
+            "error",
+            120
+        ],
+        "object-curly-spacing": [
+            "error",
+            "always"
+        ]
     }
 }
