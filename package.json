@@ -1,6 +1,6 @@
 {
   "name": "efoodgr",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "An unofficial tool to manage your efood.gr account.",
   "license": "MIT",
   "main": "./dist/index.js",
