@@ -31,13 +31,15 @@
     "test:watch": "nyc mocha --reporter spec --watch",
     "build": "tsc --declaration",
     "upload-coverage": "cat ./coverage/lcov.info | codacy-coverage",
-    "build:watch": "tsc -w --declaration"
+    "build:watch": "tsc -w --declaration",
+    "patch": "xcommit Package && npm version patch && git push && npm publish"
   },
   "dependencies": {
+    "@pobuca/xsc": "^1.13.1",
     "@types/eventemitter2": "^4.1.0",
     "@types/inquirer": "^6.5.0",
-    "@types/request-promise-native": "^1.0.17",
     "@types/node": "^12.11.7",
+    "@types/request-promise-native": "^1.0.17",
     "chalk": "^2.4.2",
     "commander": "^2.14.1",
     "eventemitter2": "^5.0.1",
