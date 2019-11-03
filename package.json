@@ -4,7 +4,7 @@
   "description": "An unofficial tool to manage your efood.gr account.",
   "license": "MIT",
   "main": "./dist/index.js",
-  "types": "./src/index.ts",
+  "types": "./src/index.d.ts",
   "readme": "README.md",
   "author": {
     "email": "k.papadatos@pobuca.com",
@@ -29,9 +29,9 @@
     "dev": "npm link && concurrently -r npm:build:watch npm:test:watch",
     "test": "nyc mocha",
     "test:watch": "nyc mocha --reporter spec --watch",
-    "build": "tsc",
+    "build": "tsc --declaration",
     "upload-coverage": "cat ./coverage/lcov.info | codacy-coverage",
-    "build:watch": "tsc -w"
+    "build:watch": "tsc -w --declaration"
   },
   "dependencies": {
     "@types/eventemitter2": "^4.1.0",
