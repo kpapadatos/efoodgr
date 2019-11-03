@@ -1,19 +1,22 @@
 {
-  "compileOnSave": true,
   "compilerOptions": {
-    "target": "es6",
+    "target": "es5",
     "module": "commonjs",
-    "noImplicitAny": false,
-    "removeComments": false,
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "outDir": "./dist"
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "outDir": "dist",
+    "sourceMap": true,
+    "types": [
+      "node",
+      "mocha"
+    ]
   },
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "node_modules",
-    "dist"
-  ],
-  "filesGlob": [
-    "./src/**/*.ts"
+    "**/*.spec.ts"
   ]
 }

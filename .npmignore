@@ -1,4 +1,8 @@
-node_modules/*
-src/*
-.git/*
-.gitignore
+.vscode
+src
+node_modules
+.nyc_output
+coverage
+tsconfig.json
+package-lock.json
+test-results.xml
