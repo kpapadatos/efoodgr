@@ -54,6 +54,7 @@
     "@types/sinon": "^7.5.0",
     "@typescript-eslint/eslint-plugin": "^2.6.0",
     "@typescript-eslint/parser": "^2.6.0",
+    "cat": "^0.2.0",
     "chai": "^4.2.0",
     "codacy-coverage": "^3.4.0",
     "concurrently": "^5.0.0",
