@@ -1,7 +1,7 @@
 <img src="https://user-images.githubusercontent.com/3382344/68092394-443ce580-fe93-11e9-9588-9186fdfff7f5.png" alt="Google Cloud Platform logo" title="Google Cloud Platform" width="96"/>
 
 # 🍔 efoodgr ![npm](https://img.shields.io/npm/v/efoodgr) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/efoodgr) ![npm collaborators](https://img.shields.io/npm/collaborators/efoodgr) [![Downloads](https://img.shields.io/npm/dt/efoodgr)](https://www.npmjs.com/package/efoodgr)
-![Build](https://github.com/kpapadatos/efoodgr/workflows/npm-publish/badge.svg)
+![Build](https://github.com/kpapadatos/efoodgr/workflows/build/badge.svg)
 [![Codacy Badge](https://img.shields.io/codacy/grade/3845ebde324f49f3853d56750a473236)](https://www.codacy.com/manual/kpapadatos/efoodgr)
 [![Maintainability](https://img.shields.io/codeclimate/maintainability-percentage/kpapadatos/efoodgr)](https://codeclimate.com/github/kpapadatos/efoodgr/maintainability)
 [![Codacy Badge](https://img.shields.io/codacy/coverage/3845ebde324f49f3853d56750a473236/master)](https://www.codacy.com/manual/kpapadatos/efoodgr)
